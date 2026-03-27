@@ -28,9 +28,9 @@ public class BattleshipFrame extends JFrame {
     JLabel numberOfMissesLbl;
     JTextArea numberOfMissesTA;
 
-    JPanel numberOfHitsPnl;
-    JLabel numberOfHitsLbl;
-    JTextArea numberOfHitsTA;
+    JPanel StrikeCounterPnl;
+    JLabel StrikeCounterLbl;
+    JTextArea StrikeCounterTA;
 
     JPanel totalMissesPnl;
     JLabel totalMissesLbl;
@@ -92,7 +92,16 @@ public class BattleshipFrame extends JFrame {
         playAgainBtn = new JButton("Play Again");
         playAgainBtn.setFont(new Font("Copperplate", Font.PLAIN, 20));
         playAgainBtn.addActionListener((ActionEvent ae) -> {
-            resetBoard();
+            /*Object[] yesOrNoOptions = {"Yes", "No"};
+            int answerIndex = JOptionPane.showOptionDialog(null, "Are you sure you want to play again?", "CONFIRM GAME RESTART", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, yesOrNoOptions, yesOrNoOptions[1]);
+            if (answerIndex == 0) {
+                resetGame();
+            }
+            if (answerIndex == 1) {
+                System.exit(0);
+            }
+
+             */
         });
 
         buttonPnl.add(quitBtn);
@@ -112,12 +121,12 @@ public class BattleshipFrame extends JFrame {
         numberOfMissesPnl.add(numberOfMissesLbl);
         numberOfMissesPnl.add(numberOfMissesTA);
 
-        numberOfHitsTA = new JTextArea(1, 23);
-        numberOfHitsTA.setEditable(false);
-        numberOfHitsLbl = new JLabel("HIT COUNTER:");
-        numberOfHitsPnl = new JPanel();
-        numberOfHitsPnl.add(numberOfHitsLbl);
-        numberOfHitsPnl.add(numberOfHitsTA);
+        StrikeCounterTA = new JTextArea(1, 23);
+        StrikeCounterTA.setEditable(false);
+        StrikeCounterLbl = new JLabel("HIT COUNTER:");
+        StrikeCounterPnl = new JPanel();
+        StrikeCounterPnl.add(StrikeCounterLbl);
+        StrikeCounterPnl.add(StrikeCounterTA);
 
         totalMissesTA = new JTextArea(1, 23);
         totalMissesTA.setEditable(false);
@@ -136,7 +145,7 @@ public class BattleshipFrame extends JFrame {
         createButtonPanel();
 
         statusAndBtnPnl.add(numberOfMissesPnl);
-        statusAndBtnPnl.add(numberOfHitsPnl);
+        statusAndBtnPnl.add(StrikeCounterPnl);
         statusAndBtnPnl.add(totalMissesPnl);
         statusAndBtnPnl.add(totalHitsPnl);
         statusAndBtnPnl.add(buttonPnl);
@@ -188,27 +197,12 @@ public class BattleshipFrame extends JFrame {
         }
     }
 
-    public void updateDisplayInfo() {
-
+    public void updateDisplay() {
+        StrikeCounterTA.setText(String.valueOf(StaticVariables.strikeCounter));
+        numberOfMissesTA.setText(String.valueOf(StaticVariables.missCounter));
+        totalHitsTA.setText(String.valueOf(StaticVariables.totalHits));
+        totalMissesTA.setText(String.valueOf(StaticVariables.totalHits));
     }
-
-    public void resetBoard() {
-        for (int i = 0; i < StaticVariables.ROWS; i++) {
-            for (int j = 0; j < StaticVariables.boardButtons[i].length; j++) {
-                StaticVariables.boardButtons[i][j].setIcon(waveImage);
-                StaticVariables.boardButtons[i][j].setEnabled(true);
-                StaticVariables.move = 0;
-                /* Initialize board representation */{
-                    StaticVariables.boardRepresentation[i][j] = 0;
-                }
-            }
-        }
-    }
-
-
-
-
-
 
     public void setShips() {
         /* SIZE FIVE SHIP */
@@ -395,6 +389,22 @@ public class BattleshipFrame extends JFrame {
             shipCoordinates[i][1] = chosenSpotForShipToBegin[1];
             // UPDATE THE BOARD REPRESENTATION SO THAT WHEN THE PROGRAM CHECKS IN THE FUTURE IT'LL KNOW IF THERE'S A SHIP THERE (1 represents a ship present)
             StaticVariables.boardRepresentation[shipCoordinates[i][0]][shipCoordinates[i][1]] = 1;
+        }
+    }
+
+    public void resetGame() {
+        for (int i = 0; i < StaticVariables.ROWS; i++) {
+            for (int j = 0; j < StaticVariables.boardButtons[i].length; j++) {
+                StaticVariables.boardButtons[i][j].setIcon(waveImage);
+                StaticVariables.boardButtons[i][j].setEnabled(true);
+                StaticVariables.missCounter = 0;
+                StaticVariables.strikeCounter = 0;
+                StaticVariables.totalMisses = 0;
+                StaticVariables.totalHits = 0;
+                /* Initialize board representation */{
+                    StaticVariables.boardRepresentation[i][j] = 0;
+                }
+            }
         }
     }
 }

@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ResultDeterminer {
+    BattleshipFrame battleShipFrame = new BattleshipFrame();
+    ImageIcon waveImage;
     ImageIcon explosionImage;
     ImageIcon splashImage;
 
@@ -27,7 +29,7 @@ public class ResultDeterminer {
         // IF THERE'S A SHIP THERE
         if(StaticVariables.boardRepresentation[StaticVariables.rowMoveWasIn][StaticVariables.colMoveWasIn] == 1) {
             StaticVariables.boardButtons[StaticVariables.rowMoveWasIn][StaticVariables.colMoveWasIn].setDisabledIcon(explosionImage);
-            StaticVariables.hitCounter++;
+            StaticVariables.strikeCounter++;
             StaticVariables.totalHits++;
         }
     }
