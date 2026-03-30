@@ -8,6 +8,10 @@ import java.util.Iterator;
 import java.util.Random;
 
 public class BattleshipFrame extends JFrame {
+    ArrayList<Ship> ships = new ArrayList<>();
+    ArrayList<int[]> validPositionsForShip = new ArrayList<>();
+    ResultDeterminer resultDeterminer = new ResultDeterminer();
+    Random randomizer = new Random();
 
     JPanel mainPnl;
     JPanel boardPnl;
@@ -20,11 +24,6 @@ public class BattleshipFrame extends JFrame {
     ImageIcon waveImage;
     ImageIcon explosionImage;
     ImageIcon splashImage;
-
-    ArrayList<Ship> ships = new ArrayList<>();
-    ArrayList<int[]> validPositionsForShip = new ArrayList<>();
-    ResultDeterminer resultDeterminer = new ResultDeterminer();
-    Random randomizer = new Random();
 
     JPanel numberOfMissesPnl;
     JLabel numberOfMissesLbl;
@@ -41,15 +40,6 @@ public class BattleshipFrame extends JFrame {
     JPanel totalHitsPnl;
     JLabel totalHitsLbl;
     JTextArea totalHitsTA;
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                JFrame frame = new BattleshipFrame();
-            }
-        });
-    }
 
     public BattleshipFrame() {
         mainPnl = new JPanel();
@@ -83,6 +73,17 @@ public class BattleshipFrame extends JFrame {
         }
     }
 
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                JFrame frame = new BattleshipFrame();
+            }
+        });
+    }
+
+
     // METHODS...
     public void createButtonPanel() {
         buttonPnl = new JPanel();
@@ -113,6 +114,7 @@ public class BattleshipFrame extends JFrame {
         buttonPnl.add(quitBtn);
         buttonPnl.add(playAgainBtn);
     }
+
 
     public void createStatusPanel() {
         statusAndBtnPnl = new JPanel();
@@ -156,6 +158,7 @@ public class BattleshipFrame extends JFrame {
         statusAndBtnPnl.add(totalHitsPnl);
         statusAndBtnPnl.add(buttonPnl);
     }
+
 
     public void makeBoardActionable() {
         boardPnl = new JPanel();
@@ -208,7 +211,6 @@ public class BattleshipFrame extends JFrame {
     }
 
 
-
     public void placeShipHorizontally(int shipLength) {
         int randomIndex = (int)(Math.random() * validPositionsForShip.size());
         int[] chosenSpotForShipToBegin = validPositionsForShip.get(randomIndex);
@@ -222,6 +224,7 @@ public class BattleshipFrame extends JFrame {
         Ship ship = new Ship(shipLength, shipCoordinates);
         ships.add(ship);
     }
+
 
     public void placeShipVertically(int shipLength) {
         int randomIndex = (int)(Math.random() * validPositionsForShip.size());
@@ -257,6 +260,7 @@ public class BattleshipFrame extends JFrame {
         setShips();
         updateDisplayInfo();
     }
+
 
     public void setShips() {
         /* SIZE FIVE SHIP */

@@ -18,14 +18,6 @@ public class Ship {
         return false;
     }
 
-    public int getShipHits() {
-        return shipHits;
-    }
-
-    public void setShipHits(int shipHits) {
-        this.shipHits = shipHits;
-    }
-
     public boolean isSunk() {
         return this.shipHits == this.shipLength;
     }
