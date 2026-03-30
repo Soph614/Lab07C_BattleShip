@@ -181,7 +181,7 @@ public class BattleshipFrame extends JFrame {
         int col;
         for (row = 0; row < StaticVariables.ROWS; row++) {
             for (col = 0; col < StaticVariables.boardButtons[row].length; col++) {
-                StaticVariables.boardButtons[row][col] = new BoardMaker(row, col);
+                StaticVariables.boardButtons[row][col] = new BattleshipButton(row, col);
                 StaticVariables.boardButtons[row][col].setIcon(waveImage);
                 // StaticVariables.boardButtons[row][col].setDisabledIcon(waveImage);
                 StaticVariables.boardButtons[row][col].addActionListener((ActionEvent actionEvent) -> {
