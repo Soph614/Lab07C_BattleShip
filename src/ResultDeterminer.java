@@ -2,12 +2,16 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ResultDeterminer {
-    BattleshipFrame battleShipFrame = new BattleshipFrame();
     ImageIcon waveImage;
     ImageIcon explosionImage;
     ImageIcon splashImage;
 
     public void displayWhetherShotWasHitOrMiss() {
+        waveImage = new ImageIcon("src/wave.png");
+        Image bigWaveImage = waveImage.getImage();
+        Image smallWaveImage = bigWaveImage.getScaledInstance(25, 25, Image.SCALE_DEFAULT);
+        waveImage = new ImageIcon(smallWaveImage);
+
         splashImage = new ImageIcon("src/splash.jpg");
         Image bigSplashImage = splashImage.getImage();
         Image smallSplashImage = bigSplashImage.getScaledInstance(25, 25, Image.SCALE_DEFAULT);
@@ -23,14 +27,18 @@ public class ResultDeterminer {
             StaticVariables.missCounter++; // IT'S A MISS
             StaticVariables.totalMisses++;
             StaticVariables.boardButtons[StaticVariables.rowMoveWasIn][StaticVariables.colMoveWasIn].setDisabledIcon(splashImage);
-            StaticVariables.totalHits++;
         }
 
         // IF THERE'S A SHIP THERE
         if(StaticVariables.boardRepresentation[StaticVariables.rowMoveWasIn][StaticVariables.colMoveWasIn] == 1) {
             StaticVariables.boardButtons[StaticVariables.rowMoveWasIn][StaticVariables.colMoveWasIn].setDisabledIcon(explosionImage);
-            StaticVariables.strikeCounter++;
             StaticVariables.totalHits++;
+            StaticVariables.missCounter = 0;
+        }
+
+        if (StaticVariables.missCounter == 5) {
+            StaticVariables.strikeCounter++;
+            StaticVariables.missCounter = 0;
         }
     }
 }

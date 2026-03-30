@@ -4,6 +4,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
 public class BattleshipFrame extends JFrame {
@@ -19,7 +20,8 @@ public class BattleshipFrame extends JFrame {
     ImageIcon waveImage;
     ImageIcon explosionImage;
     ImageIcon splashImage;
-    
+
+    ArrayList<Ship> ships = new ArrayList<>();
     ArrayList<int[]> validPositionsForShip = new ArrayList<>();
     ResultDeterminer resultDeterminer = new ResultDeterminer();
     Random randomizer = new Random();
@@ -28,9 +30,9 @@ public class BattleshipFrame extends JFrame {
     JLabel numberOfMissesLbl;
     JTextArea numberOfMissesTA;
 
-    JPanel StrikeCounterPnl;
-    JLabel StrikeCounterLbl;
-    JTextArea StrikeCounterTA;
+    JPanel strikeCounterPnl;
+    JLabel strikeCounterLbl;
+    JTextArea strikeCounterTA;
 
     JPanel totalMissesPnl;
     JLabel totalMissesLbl;
@@ -87,12 +89,18 @@ public class BattleshipFrame extends JFrame {
 
         quitBtn = new JButton("Quit");
         quitBtn.setFont(new Font("Copperplate", Font.PLAIN, 20));
-        quitBtn.addActionListener((ActionEvent ae) -> System.exit(0));
+        quitBtn.addActionListener((ActionEvent ae) -> {
+            Object[] yesOrNoOptions = {"Yes", "No"};
+            int answerIndex = JOptionPane.showOptionDialog(null, "Are you sure you want to quit?", "CONFIRM QUIT", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, yesOrNoOptions, yesOrNoOptions[1]);
+            if (answerIndex == 0) {
+                System.exit(0);
+            }
+        });
 
         playAgainBtn = new JButton("Play Again");
         playAgainBtn.setFont(new Font("Copperplate", Font.PLAIN, 20));
         playAgainBtn.addActionListener((ActionEvent ae) -> {
-            /*Object[] yesOrNoOptions = {"Yes", "No"};
+            Object[] yesOrNoOptions = {"Yes", "No"};
             int answerIndex = JOptionPane.showOptionDialog(null, "Are you sure you want to play again?", "CONFIRM GAME RESTART", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, yesOrNoOptions, yesOrNoOptions[1]);
             if (answerIndex == 0) {
                 resetGame();
@@ -100,8 +108,6 @@ public class BattleshipFrame extends JFrame {
             if (answerIndex == 1) {
                 System.exit(0);
             }
-
-             */
         });
 
         buttonPnl.add(quitBtn);
@@ -116,17 +122,17 @@ public class BattleshipFrame extends JFrame {
 
         numberOfMissesTA = new JTextArea(1, 23);
         numberOfMissesTA.setEditable(false);
-        numberOfMissesLbl = new JLabel("MISS COUNTER:");
+        numberOfMissesLbl = new JLabel("MISSES:");
         numberOfMissesPnl = new JPanel();
         numberOfMissesPnl.add(numberOfMissesLbl);
         numberOfMissesPnl.add(numberOfMissesTA);
 
-        StrikeCounterTA = new JTextArea(1, 23);
-        StrikeCounterTA.setEditable(false);
-        StrikeCounterLbl = new JLabel("HIT COUNTER:");
-        StrikeCounterPnl = new JPanel();
-        StrikeCounterPnl.add(StrikeCounterLbl);
-        StrikeCounterPnl.add(StrikeCounterTA);
+        strikeCounterTA = new JTextArea(1, 23);
+        strikeCounterTA.setEditable(false);
+        strikeCounterLbl = new JLabel("STRIKES:");
+        strikeCounterPnl = new JPanel();
+        strikeCounterPnl.add(strikeCounterLbl);
+        strikeCounterPnl.add(strikeCounterTA);
 
         totalMissesTA = new JTextArea(1, 23);
         totalMissesTA.setEditable(false);
@@ -145,7 +151,7 @@ public class BattleshipFrame extends JFrame {
         createButtonPanel();
 
         statusAndBtnPnl.add(numberOfMissesPnl);
-        statusAndBtnPnl.add(StrikeCounterPnl);
+        statusAndBtnPnl.add(strikeCounterPnl);
         statusAndBtnPnl.add(totalMissesPnl);
         statusAndBtnPnl.add(totalHitsPnl);
         statusAndBtnPnl.add(buttonPnl);
@@ -191,17 +197,65 @@ public class BattleshipFrame extends JFrame {
                         }
                     }
                     StaticVariables.boardButtons[StaticVariables.rowMoveWasIn][StaticVariables.colMoveWasIn].setEnabled(false);
+                    updateDisplayInfo();
+                    testForSunkShips();
+                    testForLoss();
+                    testForWin();
                 });
                 boardPnl.add(StaticVariables.boardButtons[row][col]);
             }
         }
     }
 
-    public void updateDisplay() {
-        StrikeCounterTA.setText(String.valueOf(StaticVariables.strikeCounter));
-        numberOfMissesTA.setText(String.valueOf(StaticVariables.missCounter));
-        totalHitsTA.setText(String.valueOf(StaticVariables.totalHits));
-        totalMissesTA.setText(String.valueOf(StaticVariables.totalHits));
+
+
+    public void placeShipHorizontally(int shipLength) {
+        int randomIndex = (int)(Math.random() * validPositionsForShip.size());
+        int[] chosenSpotForShipToBegin = validPositionsForShip.get(randomIndex);
+
+        int[][] shipCoordinates = new int[shipLength][2];
+        for (int i = 0; i < shipLength; i++) {
+            shipCoordinates[i][0] = chosenSpotForShipToBegin[0];
+            shipCoordinates[i][1] = chosenSpotForShipToBegin[1] + i;
+            StaticVariables.boardRepresentation[shipCoordinates[i][0]][shipCoordinates[i][1]] = 1;
+        }
+        Ship ship = new Ship(shipLength, shipCoordinates);
+        ships.add(ship);
+    }
+
+    public void placeShipVertically(int shipLength) {
+        int randomIndex = (int)(Math.random() * validPositionsForShip.size());
+        int[] chosenSpotForShipToBegin = validPositionsForShip.get(randomIndex);
+
+        int[][] shipCoordinates = new int[shipLength][2];
+        for (int i = 0; i < shipLength; i++) {
+            shipCoordinates[i][0] = chosenSpotForShipToBegin[0] + i;
+            shipCoordinates[i][1] = chosenSpotForShipToBegin[1];
+            // UPDATE THE BOARD REPRESENTATION SO THAT WHEN THE PROGRAM CHECKS IN THE FUTURE IT'LL KNOW IF THERE'S A SHIP THERE (1 represents a ship present)
+            StaticVariables.boardRepresentation[shipCoordinates[i][0]][shipCoordinates[i][1]] = 1;
+        }
+        Ship ship = new Ship(shipLength, shipCoordinates);
+        ships.add(ship);
+    }
+
+
+    public void resetGame() {
+        for (int i = 0; i < StaticVariables.ROWS; i++) {
+            for (int j = 0; j < StaticVariables.boardButtons[i].length; j++) {
+                StaticVariables.boardButtons[i][j].setIcon(waveImage);
+                StaticVariables.boardButtons[i][j].setEnabled(true);
+                StaticVariables.missCounter = 0;
+                StaticVariables.strikeCounter = 0;
+                StaticVariables.totalMisses = 0;
+                StaticVariables.totalHits = 0;
+                /* Initialize board representation */{
+                    StaticVariables.boardRepresentation[i][j] = 0;
+                }
+            }
+        }
+        ships.clear();
+        setShips();
+        updateDisplayInfo();
     }
 
     public void setShips() {
@@ -366,45 +420,65 @@ public class BattleshipFrame extends JFrame {
         validPositionsForShip.clear();
     }
 
-    public void placeShipHorizontally(int shipLength) {
-        int randomIndex = (int)(Math.random() * validPositionsForShip.size());
-        int[] chosenSpotForShipToBegin = validPositionsForShip.get(randomIndex);
-
-        int[][] shipCoordinates = new int[shipLength][2];
-        for (int i = 0; i < shipLength; i++) {
-            shipCoordinates[i][0] = chosenSpotForShipToBegin[0];
-            shipCoordinates[i][1] = chosenSpotForShipToBegin[1] + i;
-            StaticVariables.boardRepresentation[shipCoordinates[i][0]][shipCoordinates[i][1]] = 1;
-        }
-        Ship fiveShip = new Ship(shipLength, shipCoordinates);
-    }
-
-    public void placeShipVertically(int shipLength) {
-        int randomIndex = (int)(Math.random() * validPositionsForShip.size());
-        int[] chosenSpotForShipToBegin = validPositionsForShip.get(randomIndex);
-
-        int[][] shipCoordinates = new int[shipLength][2];
-        for (int i = 0; i < shipLength; i++) {
-            shipCoordinates[i][0] = chosenSpotForShipToBegin[0] + i;
-            shipCoordinates[i][1] = chosenSpotForShipToBegin[1];
-            // UPDATE THE BOARD REPRESENTATION SO THAT WHEN THE PROGRAM CHECKS IN THE FUTURE IT'LL KNOW IF THERE'S A SHIP THERE (1 represents a ship present)
-            StaticVariables.boardRepresentation[shipCoordinates[i][0]][shipCoordinates[i][1]] = 1;
-        }
-    }
-
-    public void resetGame() {
-        for (int i = 0; i < StaticVariables.ROWS; i++) {
-            for (int j = 0; j < StaticVariables.boardButtons[i].length; j++) {
-                StaticVariables.boardButtons[i][j].setIcon(waveImage);
-                StaticVariables.boardButtons[i][j].setEnabled(true);
-                StaticVariables.missCounter = 0;
-                StaticVariables.strikeCounter = 0;
-                StaticVariables.totalMisses = 0;
-                StaticVariables.totalHits = 0;
-                /* Initialize board representation */{
-                    StaticVariables.boardRepresentation[i][j] = 0;
-                }
+    public void testForLoss() {
+        if (StaticVariables.strikeCounter == 3) {
+            Object[] yesOrNoOptions = {"Yes", "No"};
+            int answerIndex = JOptionPane.showOptionDialog(null, "You lost!\nWould you like\nto play again?", "PLAY AGAIN?", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, yesOrNoOptions, yesOrNoOptions[1]);
+            if (answerIndex == 0) {
+                resetGame();
+            }
+            if (answerIndex == 1) {
+                System.exit(0);
             }
         }
+    }
+
+    public void testForSunkShips() {
+        // TEST FOR SUNK SHIPS
+                    /* wouldn't work because you can't update the list while iterating through it with an enhanced for loop
+                    for (Ship ship : ships) {
+                        if (ship.containsCoordinate(StaticVariables.rowMoveWasIn, StaticVariables.colMoveWasIn)) {
+                            ship.recordHit();
+                        }
+                        if (ship.isSunk()) {
+                            JOptionPane.showMessageDialog(null, "Sunk!");
+                            ships.remove(ship);
+                        }
+                    }
+                     */
+
+        // UPDATED SOLUTION
+        Iterator<Ship> shipIterator = ships.iterator();
+        while (shipIterator.hasNext()) {
+            Ship ship = shipIterator.next();
+            if (ship.containsCoordinate(StaticVariables.rowMoveWasIn, StaticVariables.colMoveWasIn)) {
+                ship.recordHit();
+            }
+            if (ship.isSunk()) {
+                JOptionPane.showMessageDialog(null, "Sunk!");
+                shipIterator.remove();
+            }
+        }
+    }
+
+    public void testForWin() {
+        // TEST FOR WIN
+        if(StaticVariables.totalHits == 17) {
+            Object[] yesOrNoOptions = {"Yes", "No"};
+            int answerIndex = JOptionPane.showOptionDialog(null, "You won!\nWould you like\nto play again?", "PLAY AGAIN?", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, yesOrNoOptions, yesOrNoOptions[1]);
+            if (answerIndex == 0) {
+                resetGame();
+            }
+            if (answerIndex == 1) {
+                System.exit(0);
+            }
+        }
+    }
+
+    public void updateDisplayInfo() {
+        strikeCounterTA.setText(String.valueOf(StaticVariables.strikeCounter));
+        numberOfMissesTA.setText(String.valueOf(StaticVariables.missCounter));
+        totalHitsTA.setText(String.valueOf(StaticVariables.totalHits));
+        totalMissesTA.setText(String.valueOf(StaticVariables.totalMisses));
     }
 }
